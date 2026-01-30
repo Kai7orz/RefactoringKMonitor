@@ -11,7 +11,8 @@ erDiagram
     roles ||--o{ users : "1:N (SET NULL)"
     categories ||--o{ record_categories : "1:N (CASCADE)"
     records　||--o{ record_categories :"1:N (CASCADE)"
-
+    users ||--|| user_credential : "1:1 (CASCADE)"
+    
     users {
         Integer id PK
         String name "NOT NULL"
@@ -19,6 +20,13 @@ erDiagram
         Integer role_id FK
         LocalDateTime created_at
         LocalDateTime updated_at
+    }
+    
+    user_credential {
+        Integer user_id PK,FK        
+        String passwordHash "NOT NULL"
+        LocalDateTime created_at "NOT NULL"
+        LocalDateTime updated_at "NOT NULL"
     }
 
     profiles {
@@ -36,6 +44,7 @@ erDiagram
     records {
         Integer id PK
         Integer user_id FK "NOT NULL"
+        String object_key
         String description "NOT NULL (投稿本文)"
         LocalDateTime created_at
         LocalDateTime updated_at
