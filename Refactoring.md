@@ -818,17 +818,42 @@ CREATE TABLE users (
 
 ---
 
-### Step 3: プロジェクト基盤構築
+### Step 3: プロジェクト基盤構築 + CI整備
 
-Spring Bootプロジェクトを作成し、基盤を整える。
+Spring Bootプロジェクトを作成し、基盤とCIを整える。
 
-**タスク:**
+**プロジェクト基盤:**
 - [ ] Spring Initializrでプロジェクト生成
 - [ ] build.gradle 依存関係設定
 - [ ] application.yml 設定
 - [ ] Docker Compose（MySQL, アプリ）
 - [ ] MyBatis設定
 - [ ] テスト基盤（JUnit5, Mockito, Testcontainers）
+
+**CI整備（GitHub Actions）:**
+- [ ] テスト自動実行（push/PR時）
+- [ ] ビルド確認
+- [ ] 静的解析（SpotBugs, Checkstyle）
+- [ ] カバレッジレポート（JaCoCo）
+
+```yaml
+# .github/workflows/ci.yml の概要
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+      - run: ./gradlew test
+      - run: ./gradlew check  # 静的解析
+```
 
 ---
 
@@ -927,6 +952,39 @@ AWS S3、OpenAI APIとの連携を実装する。
 2. [ ] GlobalExceptionHandler の実装
 3. [ ] 全エンドポイントのエラーハンドリング確認
 4. [ ] ログ出力の整備
+
+---
+
+### Step 12: CD整備（実装完了後）
+
+デプロイ自動化を構築する。
+
+**タスク:**
+- [ ] デプロイ先決定（AWS ECS / GCP Cloud Run / etc.）
+- [ ] Dockerイメージビルド・プッシュ
+- [ ] 環境変数・シークレット管理
+- [ ] デプロイワークフロー作成
+- [ ] ステージング環境構築
+- [ ] 本番環境構築
+
+```yaml
+# .github/workflows/cd.yml の概要
+name: CD
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t dakai-api .
+      - name: Push to registry
+        run: # ECR / GCR にプッシュ
+      - name: Deploy
+        run: # ECS / Cloud Run にデプロイ
+```
 
 ---
 
