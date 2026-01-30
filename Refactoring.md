@@ -745,8 +745,194 @@ EXPLAIN SELECT * FROM records WHERE user_id = 1;
 
 ---
 
+---
+
+## 9. 進行手順
+
+### Step 1: DBスキーマ設計（変更点の確定）
+
+Firebase認証からJWT自前実装への変更に伴い、DBスキーマを見直す。
+
+**変更点:**
+
+| テーブル | 変更内容 |
+|----------|----------|
+| users | `firebase_uid` 削除、`email` + `password_hash` 追加 |
+| 全テーブル | インデックス追加 |
+| records | `version` カラム追加（楽観的ロック用） |
+
+**現状:**
+```sql
+CREATE TABLE users (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    character_id INT NOT NULL,
+    firebase_uid VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (character_id) REFERENCES characters(id)
+);
+```
+
+**変更後:**
+```sql
+CREATE TABLE users (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    character_id INT NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (character_id) REFERENCES characters(id),
+    UNIQUE INDEX idx_users_email (email)
+);
+```
+
+**成果物:**
+- [ ] 新DBスキーマ定義（SQL）
+- [ ] マイグレーションファイル
+
+---
+
+### Step 2: クラス設計
+
+各層のクラス設計を行う。
+
+**設計対象:**
+
+| 層 | クラス |
+|----|--------|
+| Domain | User, Record, Profile, Follow, Like |
+| DTO | SignupRequest, LoginRequest, AuthResponse, RecordResponse, etc. |
+| Mapper | UserMapper, RecordMapper, FollowMapper, LikeMapper |
+| Service | AuthService, UserService, RecordService, FollowService, LikeService |
+| Controller | AuthController, UserController, RecordController, FollowController, LikeController |
+| Security | JwtProvider, JwtAuthenticationFilter, AuthorizationHelper |
+| Exception | 例外クラス階層、GlobalExceptionHandler |
+| Infrastructure | S3Client, OpenAiClient |
+
+**成果物:**
+- [ ] クラス図（またはクラス一覧と責務の定義）
+- [ ] 各クラスのメソッドシグネチャ
+
+---
+
+### Step 3: プロジェクト基盤構築
+
+Spring Bootプロジェクトを作成し、基盤を整える。
+
+**タスク:**
+- [ ] Spring Initializrでプロジェクト生成
+- [ ] build.gradle 依存関係設定
+- [ ] application.yml 設定
+- [ ] Docker Compose（MySQL, アプリ）
+- [ ] MyBatis設定
+- [ ] テスト基盤（JUnit5, Mockito, Testcontainers）
+
+---
+
+### Step 4: 認証基盤実装（TDD）
+
+JWTによる認証基盤を実装する。
+
+**順序:**
+1. [ ] JwtProvider テスト作成
+2. [ ] JwtProvider 実装
+3. [ ] JwtAuthenticationFilter テスト作成
+4. [ ] JwtAuthenticationFilter 実装
+5. [ ] SecurityConfig 実装
+6. [ ] AuthorizationHelper 実装
+
+---
+
+### Step 5: User機能実装（TDD）
+
+ユーザー登録・ログイン機能を実装する。
+
+**順序:**
+1. [ ] UserMapper テスト作成
+2. [ ] UserMapper 実装（XML）
+3. [ ] AuthService テスト作成
+4. [ ] AuthService 実装
+5. [ ] AuthController テスト作成
+6. [ ] AuthController 実装
+7. [ ] UserService / UserController（プロフィール取得）
+
+---
+
+### Step 6: Follow機能実装（TDD）
+
+フォロー機能を実装する。
+
+**順序:**
+1. [ ] FollowMapper テスト・実装
+2. [ ] FollowService テスト・実装
+3. [ ] FollowController テスト・実装
+
+---
+
+### Step 7: Record機能実装（TDD）
+
+片づけ記録機能を実装する。
+
+**順序:**
+1. [ ] RecordMapper テスト・実装
+2. [ ] RecordService テスト・実装
+3. [ ] RecordController テスト・実装
+
+---
+
+### Step 8: Like機能実装（TDD）
+
+いいね機能を実装する（楽観的ロック含む）。
+
+**順序:**
+1. [ ] LikeMapper テスト・実装
+2. [ ] LikeService テスト・実装（楽観的ロック）
+3. [ ] LikeController テスト・実装
+
+---
+
+### Step 9: 外部連携実装
+
+AWS S3、OpenAI APIとの連携を実装する。
+
+**順序:**
+1. [ ] S3Client 実装
+2. [ ] OpenAiClient 実装
+3. [ ] RecordServiceに統合
+
+---
+
+### Step 10: パフォーマンス最適化
+
+インデックス設計と負荷テストを行う。
+
+**順序:**
+1. [ ] 全クエリの洗い出し
+2. [ ] EXPLAIN で実行計画確認
+3. [ ] インデックス追加
+4. [ ] Before/After 比較
+5. [ ] 負荷テスト（JMeter or k6）
+
+---
+
+### Step 11: 例外処理精緻化
+
+例外処理を実務レベルに仕上げる。
+
+**順序:**
+1. [ ] 例外クラス階層の実装
+2. [ ] GlobalExceptionHandler の実装
+3. [ ] 全エンドポイントのエラーハンドリング確認
+4. [ ] ログ出力の整備
+
+---
+
 ## 更新履歴
 
 | 日付 | 内容 |
 |------|------|
 | 2026-01-30 | 初版作成 |
+| 2026-01-30 | 進行手順追加 |

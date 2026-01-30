@@ -1,0 +1,856 @@
+openapi: 3.0.3
+info:
+  title: DAKAI API
+  description: 片づけ記録共有アプリ DAKAI のバックエンドAPI
+  version: 2.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+
+tags:
+  - name: Auth
+    description: 認証関連
+  - name: Users
+    description: ユーザー関連
+  - name: Follows
+    description: フォロー関連
+  - name: Records
+    description: 片づけ記録関連
+  - name: Likes
+    description: いいね関連
+
+paths:
+  # ===== 認証 =====
+  /auth/signup:
+    post:
+      tags:
+        - Auth
+      summary: ユーザー登録
+      description: 新規ユーザーを登録し、JWTトークンを発行する
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+      responses:
+        '201':
+          description: ユーザー登録成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: リクエスト不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: INVALID_REQUEST
+                message: リクエストが不正です
+                details:
+                  - パスワードは8文字以上で入力してください
+        '409':
+          description: 既に存在するメールアドレス
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: EMAIL_ALREADY_EXISTS
+                message: このメールアドレスは既に登録されています
+
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: ログイン
+      description: メールアドレスとパスワードで認証し、JWTトークンを発行する
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: 認証失敗
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: INVALID_CREDENTIALS
+                message: メールアドレスまたはパスワードが正しくありません
+
+  /auth/refresh:
+    post:
+      tags:
+        - Auth
+      summary: トークンリフレッシュ
+      description: リフレッシュトークンを使用して新しいアクセストークンを発行する
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: トークンリフレッシュ成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: リフレッシュトークンが無効または期限切れ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: INVALID_REFRESH_TOKEN
+                message: リフレッシュトークンが無効または期限切れです
+
+  # ===== ユーザー =====
+  /users/{userId}/profile:
+    get:
+      tags:
+        - Users
+      summary: プロフィール取得
+      description: 指定したユーザーのプロフィール情報を取得する
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          description: プロフィール取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: UNAUTHORIZED
+                message: 認証が必要です
+        '404':
+          description: ユーザーが存在しない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: USER_NOT_FOUND
+                message: 指定されたユーザーが見つかりません
+
+  # ===== フォロー =====
+  /users/{userId}/following:
+    get:
+      tags:
+        - Follows
+      summary: フォロー中一覧取得
+      description: 指定したユーザーがフォローしているユーザー一覧を取得する
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          description: フォロー中一覧取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: UNAUTHORIZED
+                message: 認証が必要です
+
+  /users/{userId}/followers:
+    get:
+      tags:
+        - Follows
+      summary: フォロワー一覧取得
+      description: 指定したユーザーをフォローしているユーザー一覧を取得する
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          description: フォロワー一覧取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: UNAUTHORIZED
+                message: 認証が必要です
+
+  /follows:
+    post:
+      tags:
+        - Follows
+      summary: フォローする
+      description: 指定したユーザーをフォローする
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FollowRequest'
+      responses:
+        '201':
+          description: フォロー成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: UNAUTHORIZED
+                message: 認証が必要です
+        '404':
+          description: フォロー対象のユーザーが存在しない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: USER_NOT_FOUND
+                message: フォロー対象のユーザーが見つかりません
+        '409':
+          description: 既にフォロー済み
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: ALREADY_FOLLOWED
+                message: 既にフォローしています
+
+  /follows/{followedId}:
+    get:
+      tags:
+        - Follows
+      summary: フォローチェック
+      description: 指定したユーザーをフォローしているかチェックする
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/followedId'
+      responses:
+        '200':
+          description: チェック成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FollowStatus'
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: UNAUTHORIZED
+                message: 認証が必要です
+
+    delete:
+      tags:
+        - Follows
+      summary: フォロー解除
+      description: 指定したユーザーのフォローを解除する
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/followedId'
+      responses:
+        '200':
+          description: フォロー解除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: UNAUTHORIZED
+                message: 認証が必要です
+        '404':
+          description: フォロー関係が存在しない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: FOLLOW_NOT_FOUND
+                message: フォロー関係が存在しません
+
+  # ===== 記録 =====
+  /records:
+    get:
+      tags:
+        - Records
+      summary: 記録一覧取得
+      description: 全ユーザーの片づけ記録一覧を取得する（最新順）
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          description: 取得件数（デフォルト20）
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: offset
+          in: query
+          description: オフセット
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: 記録一覧取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Record'
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: UNAUTHORIZED
+                message: 認証が必要です
+
+    post:
+      tags:
+        - Records
+      summary: 記録作成
+      description: 片づけ記録を作成する（画像アップロード含む）
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RecordCreateRequest'
+      responses:
+        '201':
+          description: 記録作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Record'
+        '400':
+          description: リクエスト不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: INVALID_REQUEST
+                message: リクエストが不正です
+                details:
+                  - 画像ファイルはPNG形式のみ対応しています
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: UNAUTHORIZED
+                message: 認証が必要です
+
+  /users/{userId}/records:
+    get:
+      tags:
+        - Records
+      summary: ユーザーの記録一覧取得
+      description: 指定したユーザーの片づけ記録一覧を取得する
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/userId'
+      responses:
+        '200':
+          description: 記録一覧取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Record'
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: UNAUTHORIZED
+                message: 認証が必要です
+        '404':
+          description: ユーザーが存在しない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: USER_NOT_FOUND
+                message: 指定されたユーザーが見つかりません
+
+  /records/{recordId}:
+    delete:
+      tags:
+        - Records
+      summary: 記録削除
+      description: 指定した記録を削除する（自分の記録のみ削除可能）
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/recordId'
+      responses:
+        '200':
+          description: 削除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: UNAUTHORIZED
+                message: 認証が必要です
+        '403':
+          description: 権限なし（他ユーザーの記録）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: FORBIDDEN
+                message: この記録を削除する権限がありません
+        '404':
+          description: 記録が存在しない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: RECORD_NOT_FOUND
+                message: 指定された記録が見つかりません
+
+  # ===== いいね =====
+  /records/{recordId}/likes:
+    get:
+      tags:
+        - Likes
+      summary: いいねチェック
+      description: 指定した記録にいいねしているかチェックする
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/recordId'
+      responses:
+        '200':
+          description: チェック成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LikeStatus'
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: UNAUTHORIZED
+                message: 認証が必要です
+
+    post:
+      tags:
+        - Likes
+      summary: いいねする
+      description: 指定した記録にいいねする
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/recordId'
+      responses:
+        '201':
+          description: いいね成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: UNAUTHORIZED
+                message: 認証が必要です
+        '404':
+          description: 記録が存在しない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: RECORD_NOT_FOUND
+                message: 指定された記録が見つかりません
+        '409':
+          description: 既にいいね済み
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: ALREADY_LIKED
+                message: 既にいいねしています
+
+    delete:
+      tags:
+        - Likes
+      summary: いいね解除
+      description: 指定した記録のいいねを解除する
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/recordId'
+      responses:
+        '200':
+          description: いいね解除成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: UNAUTHORIZED
+                message: 認証が必要です
+        '404':
+          description: いいねが存在しない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: LIKE_NOT_FOUND
+                message: いいねが存在しません
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWTアクセストークン
+
+  parameters:
+    userId:
+      name: userId
+      in: path
+      required: true
+      description: ユーザーID
+      schema:
+        type: integer
+        format: int64
+        example: 1
+
+    recordId:
+      name: recordId
+      in: path
+      required: true
+      description: 記録ID
+      schema:
+        type: integer
+        format: int64
+        example: 1
+
+    followedId:
+      name: followedId
+      in: path
+      required: true
+      description: フォロー対象のユーザーID
+      schema:
+        type: integer
+        format: int64
+        example: 1
+
+  schemas:
+    # ===== 認証 =====
+    SignupRequest:
+      type: object
+      required:
+        - email
+        - password
+        - name
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          minLength: 8
+          example: password123
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: Taro
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: password123
+
+    RefreshRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          description: 有効なリフレッシュトークン
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6InJlZnJlc2giLCJleHAiOjE3MDcyMDcyMDB9.xyz789
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        accessToken:
+          type: string
+          description: APIアクセス用トークン（短寿命 1時間）
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6ImFjY2VzcyIsImV4cCI6MTcwNjYwNjAwMH0.abc123
+        refreshToken:
+          type: string
+          description: アクセストークン再発行用トークン（長寿命 7日）
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6InJlZnJlc2giLCJleHAiOjE3MDcyMDcyMDB9.xyz789
+        expiresIn:
+          type: integer
+          description: アクセストークンの有効期限（秒）
+          example: 3600
+
+    # ===== ユーザー =====
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: Taro
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: Taro
+        profileImage:
+          type: string
+          format: uri
+          example: https://example.com/profile.png
+        followCount:
+          type: integer
+          format: int64
+          example: 10
+        followerCount:
+          type: integer
+          format: int64
+          example: 25
+
+    # ===== フォロー =====
+    FollowRequest:
+      type: object
+      required:
+        - followedId
+      properties:
+        followedId:
+          type: integer
+          format: int64
+          description: フォロー対象のユーザーID
+          example: 2
+
+    FollowStatus:
+      type: object
+      properties:
+        followed:
+          type: boolean
+          example: true
+
+    # ===== 記録 =====
+    Record:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        userId:
+          type: integer
+          format: int64
+          example: 1
+        userName:
+          type: string
+          example: Taro
+        presignedImage:
+          type: string
+          format: uri
+          description: 署名付き画像URL
+          example: https://s3.example.com/image.png?signature=...
+        cleanUpTime:
+          type: integer
+          description: 片づけ時間（分）
+          example: 30
+        cleanUpDate:
+          type: string
+          format: date-time
+          example: 2026-01-30T10:00:00Z
+        comment:
+          type: string
+          maxLength: 1000
+          example: すっきりした！
+        likesCount:
+          type: integer
+          format: int64
+          example: 5
+
+    RecordCreateRequest:
+      type: object
+      required:
+        - file
+        - cleanUpTime
+        - cleanUpDate
+      properties:
+        file:
+          type: string
+          format: binary
+          description: 画像ファイル（PNG形式）
+        cleanUpTime:
+          type: integer
+          description: 片づけ時間（分）
+          example: 30
+        cleanUpDate:
+          type: string
+          format: date-time
+          example: 2026-01-30T10:00:00Z
+        comment:
+          type: string
+          maxLength: 1000
+          example: すっきりした！
+
+    # ===== いいね =====
+    LikeStatus:
+      type: object
+      properties:
+        liked:
+          type: boolean
+          example: true
+
+    # ===== 共通 =====
+    Message:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Success
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: エラーコード
+        message:
+          type: string
+          description: エラーメッセージ
+        details:
+          type: array
+          items:
+            type: string
+          description: 詳細エラー情報（バリデーションエラー等）
