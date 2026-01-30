@@ -9,6 +9,8 @@ erDiagram
     records ||--o{ user_likes : "1:N (CASCADE)"
     records ||--o{ comments : "1:N (CASCADE)"
     roles ||--o{ users : "1:N (SET NULL)"
+    categories ||--o{ record_categories : "1:N (CASCADE)"
+    records　||--o{ record_categories :"1:N (CASCADE)"
 
     users {
         Integer id PK
@@ -57,5 +59,16 @@ erDiagram
     roles {
         Integer id PK
         String name "ADMIN, USER, etc."
-    }    
+    }
+ 
+    record_categories {
+        Integer id PK
+        Integer record_id FK
+        Integer category_id FK
+    }
+ 
+    categories {
+        Integer id PK
+        String category_name "NOT NULL"
+    }
 ```
