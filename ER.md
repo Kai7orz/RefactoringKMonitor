@@ -32,6 +32,7 @@ erDiagram
     profiles {
         Integer user_id PK,FK "NOT NULL"
         String profile_image
+        String name
         LocalDateTime updated_at
     }
 

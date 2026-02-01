@@ -15,5 +15,22 @@ Spring Security のログイン認証の内部的な処理フローを解説し�
 といった形で全体像を把握する．
 
 ## 手順
-- ER図作成
+- ✅ER図作成
+- ✅クラス設計
+- MySQL セットアップ
+  - SQL fileでテーブル作成含む
+  - migration
 - クラス設計
+- 基盤CI 構築
+- 認証基盤構築
+- User 機能実装
+  - Register
+  - Login
+  - 名前編集
+- Record 機能実装
+  - Create
+  - Update
+  - Delete
+- Record いいね機能実装
+- Follow 機能実装
+- 
