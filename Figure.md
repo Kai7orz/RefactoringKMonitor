@@ -71,7 +71,8 @@ classDiagram
     User -- UserCredential
     UserApi --> AuthService
     UserApi --> UserService
-    UserCredentialRepository ..|> UserCredentialRepositoryInterface 
+    UserCredentialRepository ..|> UserCredentialRepositoryInterface
+    UserCredentialRepository ..> UserCredential
     UserRepository ..|> UserRepositoryInterface
     UserService --> AuthService
     UserService --> UserRepositoryInterface
