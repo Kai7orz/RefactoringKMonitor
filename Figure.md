@@ -24,14 +24,23 @@ classDiagram
     UserService: +deleteUser(String id,String password)
     
     UserApi
-    UserApi: +registerUser(UserRegisterParam userRegisterParam)
-    UserApi: +userLogin(UserLoginParam userLoginParam)
+    UserApi: +RegisterResponse registerUser(UserRegisterParam userRegisterParam)
+    UserApi: +UserLoginResponse UserLogin(UserLoginParam userLoginParam)
     
     UserCredential
-    UserCredential: -userId
-    UserCredential: -passwordHash
-    UserCredential: +changePassword(String passwordHash)
+    UserCredential: -Integer userId
+    UserCredential: -String passwordHash
+    UserCredential: +changePassword()
     
+    AuthService
+    AuthService: -bool canRegisterUser(UserRegisterParam userRegisterParam)
+    AuthService: +User registerUser(UserRegisterParam userRegisterParam)
+    AuthService: +User loginUser(UserLoginParam userLoginParam)
+    AuthService: +bool canWriteRecord(User user,Record record)
+
+    PasswordEncoder
+    PasswordEncoder: -hashPassword(String password)
+
     UserRepositoryInterface
     UserRepositoryInterface: +User findUserByEmail(String Email)
     UserRepositoryInterface: +List<User> findAllUsers()
@@ -43,24 +52,22 @@ classDiagram
     UserRepository: +List<User> findAllUsers()
     UserRepository: +void deleteUserById(Integer userId)
 
-
-    AuthService
-    AuthService: -bool canRegisterUser(UserRegisterParam userRegisterParam)
-    AuthService: +User registerUser(UserRegisterParam userRegisterParam)
-    AuthService: +User loginUser(UserLoginParam userLoginParam)
-    AuthService: +bool canWriteRecord(User user,Record record)
-
-    PasswordEncoder
-    PasswordEncoder: -hashPassword(String password)
+    UserCredentialRepository
+    UserCredentialRepository: -UserCredential credential
+    
+    UserCredentialRepositoryInterface
+    UserCredentialRepositoryInterface: +UserCredential getCredential(Integer userId)
 
     AuthService --> PasswordEncoder : password の hash 化を依頼する
     AuthService ..> UserRegisterParam
     AuthService ..> UserLoginParam : LoginParam 受け取る
     AuthService --> UserRepositoryInterface
+    AuthService --> UserCredentialRepositoryInterface
     User -- UserCredential
     UserApi --> AuthService
     UserApi --> UserService
-    UserRepository --|> UserRepositoryInterface
+    UserCredentialRepository ..|> UserCredentialRepositoryInterface 
+    UserRepository ..|> UserRepositoryInterface
     UserService --> UserRepositoryInterface
     UserService ..> User : entityのメソッドを呼び出す
     UserService ..> UserCredential
