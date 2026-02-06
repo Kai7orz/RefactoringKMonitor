@@ -27,7 +27,7 @@ classDiagram
     UserApi
     UserApi: -UserService userService
     UserApi: -AuthService authService
-    UserApi: +RegisterResponse registerUser(UserRegisterParam userRegisterParam)
+    UserApi: +User registerUser(UserRegisterParam userRegisterParam)
     UserApi: +UserLoginResponse UserLogin(UserLoginParam userLoginParam)
     
     UserCredential
@@ -42,7 +42,7 @@ classDiagram
     AuthService: -bool canRegisterUser(UserRegisterParam userRegisterParam)
     AuthService: +User registerUser(UserRegisterParam userRegisterParam)
     AuthService: +User loginUser(UserLoginParam userLoginParam)
-    AuthService: +bool canWriteRecord(User userId,Record record)
+    AuthService: +bool canWriteRecord(User user,Record record)
     AuthService: +bool updatePassword(String passwordHash)
 
     PasswordEncoder
@@ -70,6 +70,7 @@ classDiagram
     AuthService ..> UserLoginParam : LoginParam 受け取る
     AuthService --> UserRepositoryInterface
     AuthService --> UserCredentialRepositoryInterface
+    AuthService ..> User
     User -- UserCredential
     UserApi --> AuthService
     UserApi --> UserService
