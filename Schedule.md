@@ -1,4 +1,16 @@
 ## 実装手順
 - 認証関連の実装
-  - UsersApi クラス
-  - AuthService クラス
+  - ✅UsersApi クラスの実装
+  - User クラスの実装
+  - UserLoginParam クラスの実装
+  - UserRegisterParam クラスの実装
+  - PasswordEncoder クラスの実装
+  - AuthService クラスの実装
+  - UserApi 実装
+  - UserRepositoryInterface の実装
+  - UserCredentialRepositoryInterface の実装
+  - UserMock の実装
+  - UserCredentialMock の実装
+  - Auth　周辺のテスト実装
+  - UserRepository の実装
+  - UserCredentialRepository の実装
