@@ -25,6 +25,8 @@ classDiagram
     UserService: +deleteUser(String id,String password)
     
     UserApi
+    UserApi: -UserService userService
+    UserApi: -AuthService authService
     UserApi: +RegisterResponse registerUser(UserRegisterParam userRegisterParam)
     UserApi: +UserLoginResponse UserLogin(UserLoginParam userLoginParam)
     
