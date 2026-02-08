@@ -14,3 +14,5 @@
   - Auth　周辺のテスト実装
   - UserRepository の実装
   - UserCredentialRepository の実装
+- 記録サービスの実装
+  - 
