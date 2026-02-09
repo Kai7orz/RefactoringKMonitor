@@ -15,4 +15,4 @@
   - UserRepository の実装
   - UserCredentialRepository の実装
 - 記録サービスの実装
-  - 
+  - Record クラスの実装
