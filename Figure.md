@@ -22,7 +22,6 @@ classDiagram
     UserService
     UserService: -AuthService authService
     UserService: -UserRepositoryInterface UserRepository
-    UserService: +deleteUser(String id,String password)
     
     UserApi
     UserApi: -UserService userService
@@ -44,6 +43,7 @@ classDiagram
     AuthService: +User loginUser(UserLoginParam userLoginParam)
     AuthService: +bool canWriteRecord(User user,Record record)
     AuthService: +bool updatePassword(String passwordHash)
+    AuthService: +deleteUser(String id,String password)
 
     PasswordEncoder
     PasswordEncoder: -hashPassword(String password)
@@ -80,8 +80,7 @@ classDiagram
     UserService --> AuthService
     UserService --> UserRepositoryInterface
     UserService ..> User : entityのメソッドを呼び出す
-    UserService ..> UserCredential
-
+    
 
     RecordApi
     RecordApi: +List<Record> getAllRecordsByUserId(Integer userId)
