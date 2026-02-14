@@ -22,7 +22,7 @@ tags:
 
 paths:
   # ===== 認証 =====
-  /auth/signup:
+  /auth/register:
     post:
       tags:
         - Auth
@@ -33,7 +33,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SignupRequest'
+              $ref: '#/components/schemas/RegisterRequest'
       responses:
         '201':
           description: ユーザー登録成功
@@ -641,7 +641,7 @@ components:
 
   schemas:
     # ===== 認証 =====
-    SignupRequest:
+    RegisterRequest:
       type: object
       required:
         - email
