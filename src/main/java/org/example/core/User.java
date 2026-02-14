@@ -1,7 +1,12 @@
 package org.example.core;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
 public class User {
     private Integer id;
     private Integer role_id;

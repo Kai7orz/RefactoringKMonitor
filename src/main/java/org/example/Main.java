@@ -1,11 +1,12 @@
 package org.example;
 
-//TIP コードを<b>実行</b>するには、<shortcut actionId="Run"/> を押すか
-// ガターの <icon src="AllIcons.Actions.Execute"/> アイコンをクリックします。
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
+
+@SpringBootApplication
 public class Main {
     public static void main(String[] args) {
-        //TIP ハイライトされたテキストにキャレットがある状態で <shortcut actionId="ShowIntentionActions"/> を押すと
-        // IntelliJ IDEA によるその修正案を確認できます。
-
+        SpringApplication.run(Main.class,args);
     }
 }
