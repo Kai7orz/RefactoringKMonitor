@@ -53,13 +53,13 @@ classDiagram
     UserRepositoryInterface: +bool existsByEmail(String email)
     UserRepositoryInterface: +User findUserByEmail(String Email)
     UserRepositoryInterface: +List<User> findAllUsers()
-    UserRepositoryInterface: +void deleteUserById(Integer userId)
     
     UserRepository
     UserRepository: -UserMapper userMapper
+    UserRepository: +bool existsByEmail(String email)
     UserRepository: +User findUserByEmail(String Email)
     UserRepository: +List<User> findAllUsers()
-    UserRepository: +void deleteUserById(Integer userId)
+
 
     UserCredentialRepository
     UserCredentialRepository: -UserCredential credential
