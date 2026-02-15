@@ -1,6 +1,7 @@
 package org.example.application;
 
 import net.bytebuddy.asm.Advice;
+import org.example.api.exception.AlreadyRegisterException;
 import org.example.core.user.User;
 import org.example.core.user.UserRepository;
 import org.example.core.userCredential.UserCredential;
@@ -14,12 +15,14 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class AuthServiceTest {
     // credential に ハッシュ化されたパスワードが渡されているかテスト(userCredentail の フィールド passwordHash の値で検証する)
+    // すでに登録されているユーザであればエラーを返す
+    // PasswordHash や User のインスタンス化せずにエラーを即座に返せていることを確認する
 
     @Mock
     private UserRepository userRepository;
@@ -40,7 +43,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    void registerUser_hash_password_successfully(){
+    void registerUser_hash_password_success(){
         // ① テストに必要なダミー変数などを設定
         // ② テストしたいロジックの実行
         // ③ 実行された変数をキャプチャして検証
@@ -53,7 +56,7 @@ public class AuthServiceTest {
         when(passwordEncoder.encode(any())).thenReturn(encodedPassword);
 
         // userRegisterParam のダミーを作成
-        UserRegisterParam dummyUserRegisterParam = new UserRegisterParam("test","test@example.com","rowPassword");
+        UserRegisterParam dummyUserRegisterParam = new UserRegisterParam(dummyUser.getName(),dummyUser.getEmail(),"rowPassword");
 
         // 以下②
         // authService の registerUser を呼び出す
@@ -67,5 +70,18 @@ public class AuthServiceTest {
         UserCredential captured = credentialCaptor.getValue();
         // パスワードが生ではなく、PasswordEncoder が生成したハッシュ値になっているか
         assertEquals(encodedPassword, captured.getPasswordHash(), "保存されるパスワードはハッシュ化されている必要があります");
+    }
+
+    @Test
+    void registerNotUniqueUser_fail(){
+        User dummyUser = new User("testName","test@example.com");
+        when(userRepository.existsByEmail(dummyUser.getEmail())).thenReturn(true);
+
+        UserRegisterParam dummyUserRegisterParam = new UserRegisterParam(dummyUser.getName(),dummyUser.getEmail(),"rowPassword");
+        assertThrows(AlreadyRegisterException.class, () -> {
+            authService.registerUser(dummyUserRegisterParam);
+        });
+        verify(userRepository, never()).save(any());
+        verify(userCredentialRepository, never()).save(any());
     }
 }
