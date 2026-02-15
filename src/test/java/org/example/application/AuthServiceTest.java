@@ -21,6 +21,7 @@ import static org.mockito.Mockito.*;
 
 public class AuthServiceTest {
     // credential に ハッシュ化されたパスワードが渡されているかテスト(userCredentail の フィールド passwordHash の値で検証する)
+
     // すでに登録されているユーザであればエラーを返す
     // PasswordHash や User のインスタンス化せずにエラーを即座に返せていることを確認する
 
