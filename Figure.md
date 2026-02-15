@@ -49,6 +49,7 @@ classDiagram
     PasswordEncoder: -hashPassword(String password)
 
     UserRepositoryInterface
+    UserRepositoryInterface: +User save(User user)    
     UserRepositoryInterface: +User findUserByEmail(String Email)
     UserRepositoryInterface: +List<User> findAllUsers()
     UserRepositoryInterface: +void deleteUserById(Integer userId)
