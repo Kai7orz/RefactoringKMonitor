@@ -2,9 +2,11 @@ package org.example.application;
 
 import org.example.core.user.User;
 import org.example.core.user.UserRepository;
+import org.example.core.userCredential.UserCredential;
 import org.example.core.userCredential.UserCredentialRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthService {
@@ -18,13 +20,16 @@ public class AuthService {
             this.userCredentialRepository = userCredentialRepository;
     }
 
+    @Transactional
     public User registerUser(UserRegisterParam userRegisterParam){
-        // レスポンスの仮置き
-        // passwordEncoder 利用して userRegisterParam のパスワードハッシュ化する
+        // transaction で 一括で処理すること
+        User user = new User(userRegisterParam.getName(),userRegisterParam.getEmail());
+        // repository に user を登録
+        User savedUser = this.userRepository.save(user);
 
-        User user = new User(userRegisterParam.getName(),userRegisterParam.getEmail(),userRegisterParam.getR);
-        // repository 呼んで User を登録する
-        // repository の例外処理をどうするか考えておく
+        UserCredential userCredential = new UserCredential(user.getId(),this.passwordEncoder.encode(userRegisterParam.getRowPassword()));
+        UserCredential savedCredential = this.userCredentialRepository.save(userCredential);
+
         return user;
     }
 }
