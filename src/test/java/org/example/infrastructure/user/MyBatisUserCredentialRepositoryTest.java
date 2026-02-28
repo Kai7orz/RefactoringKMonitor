@@ -1,6 +1,7 @@
 package org.example.infrastructure.user;
 
 
+import org.example.api.exception.AlreadyRegisterException;
 import org.example.core.user.User;
 import org.example.core.user.UserRepository;
 import org.example.core.userCredential.UserCredential;
@@ -10,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
+
+import java.util.NoSuchElementException;
 
 @MybatisTest
 @Import({org.example.infrastructure.repository.UserCredentialRepository.class,
@@ -30,5 +33,13 @@ public class MyBatisUserCredentialRepositoryTest {
         this.userCredentialRepository.save(userCredential);
         UserCredential registeredCredential = this.userCredentialRepository.get(registeredUser.getId()).get();
         Assertions.assertEquals(registeredCredential.getPasswordHash(),userCredential.getPasswordHash());
+    }
+
+    @Test
+    void failed_to_get_not_registered_credential() {
+        User user = new User("testName","test@example.com");
+        Assertions.assertThrows(NoSuchElementException.class,()->{
+           this.userCredentialRepository.get(user.getId()).get();
+        });
     }
 }
