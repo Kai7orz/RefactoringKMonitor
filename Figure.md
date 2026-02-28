@@ -65,7 +65,8 @@ classDiagram
     UserCredentialRepository: -UserCredential credential
     
     UserCredentialRepositoryInterface
-    UserCredentialRepositoryInterface: +UserCredential getCredential(Integer userId)
+    UserCredentialRepositoryInterface: +Optional<UserCredential> get(Integer userId)
+    UserCredentialRepositoryInterface: +void save(UserCredential userCredential)
 
     AuthService --> PasswordEncoder : password の hash 化を依頼する
     AuthService ..> UserRegisterParam
