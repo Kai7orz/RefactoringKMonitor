@@ -24,7 +24,7 @@ erDiagram
     
     user_credential {
         Integer user_id PK,FK        
-        String passwordHash "NOT NULL"
+        String password_hash "NOT NULL"
         LocalDateTime created_at "NOT NULL"
         LocalDateTime updated_at "NOT NULL"
     }

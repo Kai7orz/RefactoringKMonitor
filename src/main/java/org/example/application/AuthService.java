@@ -37,7 +37,7 @@ public class AuthService {
         User savedUser = this.userRepository.save(user);
 
         UserCredential userCredential = new UserCredential(user.getId(), this.passwordEncoder.encode(userRegisterParam.getRowPassword()));
-        UserCredential savedCredential = this.userCredentialRepository.save(userCredential);
+        this.userCredentialRepository.save(userCredential);
 
         return user;
     }
