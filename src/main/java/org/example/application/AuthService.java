@@ -60,8 +60,7 @@ public class AuthService {
     public void updatePassword(UpdatePasswordParamRaw updatePasswordParamRaw) {
         UserCredential currentCredential = this.userCredentialRepository.get(updatePasswordParamRaw.getUserId()).orElseThrow(()-> new AuthenticationException("該当ユーザ―がいません"));
         if (this.passwordEncoder.matches(updatePasswordParamRaw.getCurrentPassword(), currentCredential.getPasswordHash())) {
-            UpdatePasswordParam updatePasswordParam = new UpdatePasswordParam(updatePasswordParamRaw.getUserId(), updatePasswordParamRaw.getCurrentPassword(), this.passwordEncoder.encode(updatePasswordParamRaw.getNewPassword()));
-            this.userCredentialRepository.update(updatePasswordParam);
+            this.userCredentialRepository.update(updatePasswordParamRaw.getUserId(),this.passwordEncoder.encode(updatePasswordParamRaw.getNewPassword()));
         } else {
             throw new AuthenticationException("パスワードが不正です");
         }

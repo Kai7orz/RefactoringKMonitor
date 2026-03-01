@@ -9,5 +9,5 @@ import java.util.Optional;
 public interface UserCredentialRepository {
     void save(UserCredential credential);
     Optional<UserCredential> get(Integer userId);
-    void update(UpdatePasswordParam updatePasswordParam);
+    void update(Integer userId,String newPasswordHash);
 }

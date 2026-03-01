@@ -9,7 +9,7 @@ import org.example.core.userCredential.UserCredential;
 @Mapper
 public interface UserCredentialMapper {
     void insert(@Param("credential") UserCredential userCredential);
-    void update(@Param("updatePasswordParam") UpdatePasswordParam updatePasswordParam);
+    void update(@Param("userId") Integer userId,@Param("newPasswordHash") String newPasswordHash);
     UserCredential get(@Param("userId") Integer userId);
     void delete(@Param("userId") Integer userId);
 }

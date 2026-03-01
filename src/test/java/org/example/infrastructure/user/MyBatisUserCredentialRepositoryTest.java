@@ -44,9 +44,9 @@ public class MyBatisUserCredentialRepositoryTest {
         UserCredential dummyCredential = new UserCredential(registeredUser.getId(),"passwordHash");
         this.userCredentialRepository.save(dummyCredential);
         UserCredential registeredCredential = this.userCredentialRepository.get(registeredUser.getId()).orElseThrow();
-        UpdatePasswordParam updatePasswordParam = new UpdatePasswordParam(registeredUser.getId(),registeredCredential.getPasswordHash(),"newPasswordHash");
-        this.userCredentialRepository.update(updatePasswordParam);
+        Assertions.assertEquals("passwordHash",registeredCredential.getPasswordHash());
 
+        this.userCredentialRepository.update(registeredUser.getId(),"newPasswordHash");
         UserCredential newCredential = this.userCredentialRepository.get(registeredUser.getId()).orElseThrow();
         Assertions.assertEquals("newPasswordHash",newCredential.getPasswordHash());
     }
