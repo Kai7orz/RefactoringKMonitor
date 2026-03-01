@@ -10,4 +10,5 @@ public interface UserCredentialRepository {
     void save(UserCredential credential);
     Optional<UserCredential> get(Integer userId);
     void update(Integer userId,String newPasswordHash);
+    void delete(Integer userId);
 }

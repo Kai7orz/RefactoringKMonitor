@@ -60,7 +60,19 @@ public class MyBatisUserRepositoryTest {
     }
 
     @Test
-    void not_save_registered_user() {
+    void delete_user_success() {
+        User dummyUser = new User("testName","test@example.com");
+        this.userRepository.save(dummyUser);
+        User foundUser = this.userRepository.findUserByEmail(dummyUser.getEmail()).orElseThrow();
+        Assertions.assertEquals(dummyUser.getName(),foundUser.getName());
+        Assertions.assertEquals(dummyUser.getEmail(),foundUser.getEmail());
+        Assertions.assertTrue(this.userRepository.existsByEmail(dummyUser.getEmail()));
+        this.userRepository.delete(foundUser.getId());
+        Assertions.assertFalse(this.userRepository.existsByEmail(dummyUser.getEmail()));
+    }
+
+    @Test
+    void not_save_registered_user_fail() {
         User user = new User("testName","test@example.com");
         User registeredUser = new User("testName","test@example.com");
         this.userRepository.save(user);

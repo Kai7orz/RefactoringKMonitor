@@ -58,9 +58,21 @@ public class AuthService {
 
     @Transactional
     public void updatePassword(UpdatePasswordParamRaw updatePasswordParamRaw) {
-        UserCredential currentCredential = this.userCredentialRepository.get(updatePasswordParamRaw.getUserId()).orElseThrow(()-> new AuthenticationException("該当ユーザ―がいません"));
+        UserCredential currentCredential = this.userCredentialRepository.get(updatePasswordParamRaw.getUserId()).orElseThrow(()-> new AuthenticationException("該当ユーザーがいません"));
         if (this.passwordEncoder.matches(updatePasswordParamRaw.getCurrentPassword(), currentCredential.getPasswordHash())) {
             this.userCredentialRepository.update(updatePasswordParamRaw.getUserId(),this.passwordEncoder.encode(updatePasswordParamRaw.getNewPassword()));
+        } else {
+            throw new AuthenticationException("パスワードが不正です");
+        }
+    }
+
+    @Transactional
+    public void deleteUser(DeleteParam deleteParam) {
+        UserCredential credential = this.userCredentialRepository.get(deleteParam.getUserId()).orElseThrow(()-> new AuthenticationException("該当ユーザーがいません"));
+        if(this.passwordEncoder.matches(deleteParam.getCurrentPassword(),credential.getPasswordHash())){
+            this.userCredentialRepository.delete(deleteParam.getUserId());
+            this.userRepository.delete(deleteParam.getUserId());
+            // CASCADE で対応するべきかもしれないので検討する
         } else {
             throw new AuthenticationException("パスワードが不正です");
         }

@@ -10,4 +10,5 @@ public interface UserRepository {
     User save(User user);
     boolean existsByEmail(String email) throws AlreadyRegisterException;
     Optional<User> findUserByEmail(String email);
+    void delete(Integer userId);
 }

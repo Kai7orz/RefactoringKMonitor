@@ -1,5 +1,6 @@
 package org.example.application;
 
+import org.apache.ibatis.annotations.Update;
 import org.example.api.exception.AlreadyRegisterException;
 import org.example.core.user.User;
 import org.example.core.user.UserRepository;
@@ -15,7 +16,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.example.api.exception.AuthenticationException;
-import org.springframework.util.Assert;
 
 import java.util.Optional;
 
@@ -109,6 +109,36 @@ public class AuthServiceTest {
     }
 
     @Test
+    void updatePassword_success() {
+     // updatePasswordParam 用意する
+     // credentialRepository から userId に対応した credential 取得
+     // 取得したパスワードハッシュと, updatePasswordParam の currentPassword を比較
+     // userCredentialRepository.update がよばれることを確認
+        UpdatePasswordParamRaw updatePasswordParamRaw = new UpdatePasswordParamRaw(1,"currentPassword","newPasswordRaw");
+        UserCredential dummyCredential = new UserCredential(1,"currentPasswordHash");
+        Optional<UserCredential> optDummyCredential = Optional.of(dummyCredential);
+
+        when(userCredentialRepository.get(any())).thenReturn(optDummyCredential);
+        when(passwordEncoder.matches(any(),any())).thenReturn(true);
+        doNothing().when(userCredentialRepository).update(any(),any());
+        authService.updatePassword(updatePasswordParamRaw);
+        verify(userCredentialRepository,times(1)).update(any(),any());
+    }
+
+    @Test
+    void deleteUser_success() {
+        DeleteParam deleteParam = new DeleteParam(1,"currentPassword");
+        UserCredential dummyUserCredential = new UserCredential(1,"passwordHash");
+        Optional<UserCredential> optionalUserCredential = Optional.of(dummyUserCredential);
+        when(this.userCredentialRepository.get(any())).thenReturn(optionalUserCredential);
+        when(this.passwordEncoder.matches(any(),any())).thenReturn(true);
+        doNothing().when(this.userCredentialRepository).delete(any());
+        authService.deleteUser(deleteParam);
+        verify(this.userCredentialRepository,times(1)).delete(any());
+        verify(this.userRepository,times(1)).delete(any());
+    }
+
+    @Test
     void updatePassword_wrongPassword_fail() {
         // credentialRepository.get と update, passwordEncoder は mock する
         // user とを生成
@@ -147,6 +177,19 @@ public class AuthServiceTest {
     }
 
     @Test
+    void updatePassword_userNotFound_fail() {
+        UserCredential dummyUserCredential = new UserCredential(1,"passwordHash");
+        Optional<UserCredential> optUserCredential = Optional.of(dummyUserCredential);
+        UpdatePasswordParamRaw dummyUpdatePasswordParamParamRaw = new UpdatePasswordParamRaw(1,"currentPassword","newPasswordRaw");
+
+        UserCredential dummyCredential = new UserCredential(1,"passwordHash");
+        Exception e = Assertions.assertThrows(AuthenticationException.class,()->{
+            authService.updatePassword(dummyUpdatePasswordParamParamRaw);
+        });
+        Assertions.assertEquals("該当ユーザーがいません",e.getMessage());
+    }
+
+    @Test
     void loginUser_passwordWrong_fail() {
         User dummyUser = new User("testName","test@example.com");
         UserCredential dummyUserCredential = new UserCredential(1,"passwordHash");
@@ -164,4 +207,37 @@ public class AuthServiceTest {
 
         Assertions.assertEquals("認証エラー",e.getMessage());
     }
+
+
+    @Test
+    void deleteUser_userNotFound_fail() {
+        UserCredential dummyUserCredential = new UserCredential(1,"passwordHash");
+        Optional<UserCredential> optUserCredential = Optional.of(dummyUserCredential);
+        DeleteParam deleteParam = new DeleteParam(1,"currentPassword");
+
+        Exception e = Assertions.assertThrows(AuthenticationException.class,()->{
+            authService.deleteUser(deleteParam);
+        });
+        Assertions.assertEquals("該当ユーザーがいません",e.getMessage());
+    }
+
+    @Test
+    void deleteUser_passwordWrong_fail() {
+        User dummyUser = new User("testName","test@example.com");
+        UserCredential dummyUserCredential = new UserCredential(1,"passwordHash");
+        DeleteParam deleteParam = new DeleteParam(1,"wrongPasswordHash");
+        Optional<User> optDummyUser = Optional.of(dummyUser);
+        Optional<UserCredential> optUserCredential = Optional.of(dummyUserCredential);
+
+        when(userRepository.findUserByEmail(any())).thenReturn(optDummyUser);
+        when(userCredentialRepository.get(any())).thenReturn(optUserCredential);
+        when(passwordEncoder.matches(any(),any())).thenReturn(false);
+
+        Exception e = Assertions.assertThrows(AuthenticationException.class,()->{
+            authService.deleteUser(deleteParam);
+        });
+
+        Assertions.assertEquals("パスワードが不正です",e.getMessage());
+    }
+
 }

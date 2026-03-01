@@ -52,6 +52,24 @@ public class MyBatisUserCredentialRepositoryTest {
     }
 
     @Test
+    void delete_credential_success() {
+        User dummyUser = new User("testName","test@example.com");
+        this.userRepository.save(dummyUser);
+        User foundUser = this.userRepository.findUserByEmail(dummyUser.getEmail()).orElseThrow();
+
+        UserCredential dummyCredential = new UserCredential(foundUser.getId(),"passwordHash");
+        this.userCredentialRepository.save(dummyCredential);
+
+
+        UserCredential foundCredential = this.userCredentialRepository.get(foundUser.getId()).orElseThrow();
+        Assertions.assertEquals(dummyCredential.getPasswordHash(),foundCredential.getPasswordHash());
+        this.userCredentialRepository.delete(foundUser.getId());
+        Assertions.assertThrows(NoSuchElementException.class,()->{
+            this.userCredentialRepository.get(foundUser.getId()).orElseThrow();
+        });
+    }
+
+    @Test
     void get_not_registered_credential_fail() {
         User user = new User("testName","test@example.com");
         Assertions.assertThrows(NoSuchElementException.class,()->{

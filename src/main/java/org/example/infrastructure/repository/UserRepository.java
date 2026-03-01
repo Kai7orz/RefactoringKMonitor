@@ -33,4 +33,8 @@ public class UserRepository implements org.example.core.user.UserRepository
     public Optional<User> findUserByEmail(String email){
         return Optional.ofNullable(this.userMapper.findUserByEmail(email));
     }
+
+    public void delete(Integer userId) {
+        this.userMapper.delete(userId);
+    }
 }

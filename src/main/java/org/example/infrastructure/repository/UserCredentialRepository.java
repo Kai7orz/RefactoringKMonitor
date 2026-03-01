@@ -31,4 +31,8 @@ public class UserCredentialRepository implements org.example.core.userCredential
     public void update(Integer userId,String newPasswordHash){
         this.userCredentialMapper.update(userId,newPasswordHash);
     }
+
+    public void delete(Integer userId) {
+        this.userCredentialMapper.delete(userId);
+    }
 }
