@@ -2,6 +2,7 @@ package org.example.infrastructure.user;
 
 
 import org.example.api.exception.AlreadyRegisterException;
+import org.example.application.UpdatePasswordParam;
 import org.example.core.user.User;
 import org.example.core.user.UserRepository;
 import org.example.core.userCredential.UserCredential;
@@ -36,7 +37,22 @@ public class MyBatisUserCredentialRepositoryTest {
     }
 
     @Test
-    void failed_to_get_not_registered_credential() {
+    void update_password_success() {
+        User dummyUser = new User("testName","test@example.com");
+        this.userRepository.save(dummyUser);
+        User registeredUser = this.userRepository.findUserByEmail(dummyUser.getEmail()).orElseThrow();
+        UserCredential dummyCredential = new UserCredential(registeredUser.getId(),"passwordHash");
+        this.userCredentialRepository.save(dummyCredential);
+        UserCredential registeredCredential = this.userCredentialRepository.get(registeredUser.getId()).orElseThrow();
+        UpdatePasswordParam updatePasswordParam = new UpdatePasswordParam(registeredUser.getId(),registeredCredential.getPasswordHash(),"newPasswordHash");
+        this.userCredentialRepository.update(updatePasswordParam);
+
+        UserCredential newCredential = this.userCredentialRepository.get(registeredUser.getId()).orElseThrow();
+        Assertions.assertEquals("newPasswordHash",newCredential.getPasswordHash());
+    }
+
+    @Test
+    void get_not_registered_credential_fail() {
         User user = new User("testName","test@example.com");
         Assertions.assertThrows(NoSuchElementException.class,()->{
            this.userCredentialRepository.get(user.getId()).get();
