@@ -13,6 +13,9 @@
     <select id="findUserByEmail" resultMap="userMap">
         select id, name, email from users where email = #{email}
     </select>
+    <delete id="delete">
+        delete from users where id=#{userId}
+    </delete>
     <resultMap id="userMap" type="org.example.core.user.User">
         <id column="id" property="id"/>
         <result column="name" property="name"/>

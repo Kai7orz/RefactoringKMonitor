@@ -9,4 +9,5 @@ public interface UserMapper {
     void insert(@Param("user") User user);
     boolean existsByEmail(@Param("email") String email);
     User findUserByEmail(@Param("email") String email);
+    void delete(@Param("userId") Integer userId);
 }

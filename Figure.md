@@ -57,21 +57,29 @@ classDiagram
     UserRepositoryInterface: +bool existsByEmail(String email)
     UserRepositoryInterface: +User findUserByEmail(String Email)
     UserRepositoryInterface: +List<User> findAllUsers()
-    
+    UserRepositoryInterface: +void delete(Integer userId)
+
+
     UserRepository
     UserRepository: -UserMapper userMapper
     UserRepository: +bool existsByEmail(String email)
     UserRepository: +User findUserByEmail(String Email)
     UserRepository: +List<User> findAllUsers()
+    UserRepository: void delete(Integer userId)
 
 
     UserCredentialRepository
     UserCredentialRepository: -UserCredential credential
-    
+    UserCredentialRepository: +Optional<UserCredential> get(Integer userId)
+    UserCredentialRepository: +void save(UserCredential userCredential)
+    UserCredentialRepository: +void update(Integer userId, String newPasswordHash)
+    UserCredentialRepository: +void delete(Integer userId);
+
     UserCredentialRepositoryInterface
     UserCredentialRepositoryInterface: +Optional<UserCredential> get(Integer userId)
     UserCredentialRepositoryInterface: +void save(UserCredential userCredential)
     UserCredentialRepositoryInterface: +void update(Integer userId, String newPasswordHash)
+    UserCredentialRepositoryInterface: +void delete(Integer userId);
 
     AuthService --> PasswordEncoder : password の hash 化を依頼する
     AuthService ..> UserRegisterParam
