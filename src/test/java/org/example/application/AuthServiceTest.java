@@ -15,6 +15,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.example.api.exception.AuthenticationException;
+import org.springframework.util.Assert;
+
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -107,8 +109,21 @@ public class AuthServiceTest {
     }
 
     @Test
-    void updatePassword_success() {
+    void updatePassword_wrongPassword_fail() {
+        // credentialRepository.get と update, passwordEncoder は mock する
+        // user とを生成
+        UserCredential currentCredential = new UserCredential(1,"passwordHash");
+        Optional<UserCredential> optCurrentCredential = Optional.of(currentCredential);
 
+        when(passwordEncoder.matches(any(),any())).thenReturn(false);
+        when(this.userCredentialRepository.get(any())).thenReturn(optCurrentCredential);
+
+        UpdatePasswordParamRaw updatePasswordParamRaw = new UpdatePasswordParamRaw(1,"currentPassword","newPasswordRaw");
+        Exception e = Assertions.assertThrows(AuthenticationException.class,()->{
+            authService.updatePassword(updatePasswordParamRaw);
+        });
+
+        Assertions.assertEquals("パスワードが不正です",e.getMessage());
     }
 
     @Test
