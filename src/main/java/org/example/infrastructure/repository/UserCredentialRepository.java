@@ -28,7 +28,7 @@ public class UserCredentialRepository implements org.example.core.userCredential
         return Optional.ofNullable(userCredential);
     }
 
-    public void update(UpdatePasswordParam updatePasswordParam){
-        this.userCredentialMapper.update(updatePasswordParam);
+    public void update(Integer userId,String newPasswordHash){
+        this.userCredentialMapper.update(userId,newPasswordHash);
     }
 }
