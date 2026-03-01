@@ -1,5 +1,6 @@
 package org.example.infrastructure.repository;
 
+import org.example.application.UpdatePasswordParam;
 import org.example.core.userCredential.UserCredential;
 import org.example.infrastructure.mybatis.mapper.UserCredentialMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,5 +26,9 @@ public class UserCredentialRepository implements org.example.core.userCredential
     public Optional<UserCredential> get(Integer userId){
         UserCredential userCredential = this.userCredentialMapper.get(userId);
         return Optional.ofNullable(userCredential);
+    }
+
+    public void update(UpdatePasswordParam updatePasswordParam){
+        this.userCredentialMapper.update(updatePasswordParam);
     }
 }

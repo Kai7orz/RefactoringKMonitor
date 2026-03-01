@@ -18,6 +18,11 @@ classDiagram
     UserLoginParam
     UserLoginParam: String email
     UserLoginParam: String rowPassword
+    
+    UpdatePasswordParam
+    UpdatePasswordParam: String userId
+    UpdatePasswordParam: String currentPassword
+    UpdatePasswordParam: String newPassword
 
     UserService
     UserService: -AuthService authService
@@ -32,7 +37,6 @@ classDiagram
     UserCredential
     UserCredential: -Integer userId
     UserCredential: -String passwordHash
-    UserCredential: +changePassword()
     
     AuthService
     AuthService: -PasswordEncoder enc
@@ -42,7 +46,7 @@ classDiagram
     AuthService: +User registerUser(UserRegisterParam userRegisterParam)
     AuthService: +User loginUser(UserLoginParam userLoginParam)
     AuthService: +bool canWriteRecord(User user,Record record)
-    AuthService: +bool updatePassword(String passwordHash)
+    AuthService: +void updatePassword(UpdateUserParam updateUserParam)
     AuthService: +deleteUser(String id,String password)
 
     PasswordEncoder
@@ -67,6 +71,7 @@ classDiagram
     UserCredentialRepositoryInterface
     UserCredentialRepositoryInterface: +Optional<UserCredential> get(Integer userId)
     UserCredentialRepositoryInterface: +void save(UserCredential userCredential)
+    UserCredentialRepositoryInterface: +void update(UpdatePasswordParam updatePasswordParam);
 
     AuthService --> PasswordEncoder : password の hash 化を依頼する
     AuthService ..> UserRegisterParam
@@ -74,11 +79,13 @@ classDiagram
     AuthService --> UserRepositoryInterface
     AuthService --> UserCredentialRepositoryInterface
     AuthService ..> User
+    AuthService ..> UpdatePasswordParam
     User -- UserCredential
     UserApi --> AuthService
     UserApi --> UserService
     UserCredentialRepository ..|> UserCredentialRepositoryInterface
     UserCredentialRepository ..> UserCredential
+    UserCredentialRepository ..> UpdatePasswordParam
     UserRepository ..|> UserRepositoryInterface
     UserService --> AuthService
     UserService --> UserRepositoryInterface

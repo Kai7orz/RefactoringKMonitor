@@ -29,7 +29,7 @@ public class AuthService {
         // transaction で 一括で処理すること
         // 重複ユーザーへはエラーを返すこと
         // Email に Unique 制約を設けて, DB でエラーを返してもらう設計？
-        if(this.userRepository.existsByEmail(userRegisterParam.getEmail())){
+        if (this.userRepository.existsByEmail(userRegisterParam.getEmail())) {
             throw new AlreadyRegisterException("このメールアドレスは既に登録されています");
         }
 
@@ -45,14 +45,25 @@ public class AuthService {
     }
 
     @Transactional
-    public User loginUser(UserLoginParam userLoginParam){
+    public User loginUser(UserLoginParam userLoginParam) {
         // email を基に DBからuser を取得して，その user に紐づいた Credential をとり，そのcredential と userLoginParam を Encode したものを比較する
-        User registeredUser = this.userRepository.findUserByEmail(userLoginParam.getEmail()).orElseThrow(()-> new AuthenticationException("ユーザーが見つかりません"));
-        UserCredential userCredential = this.userCredentialRepository.get(registeredUser.getId()).orElseThrow(()-> new AuthenticationException("認証情報が登録されていません"));
-        if(this.passwordEncoder.matches(userLoginParam.getPasswordRow(),userCredential.getPasswordHash())){
+        User registeredUser = this.userRepository.findUserByEmail(userLoginParam.getEmail()).orElseThrow(() -> new AuthenticationException("ユーザーが見つかりません"));
+        UserCredential userCredential = this.userCredentialRepository.get(registeredUser.getId()).orElseThrow(() -> new AuthenticationException("認証情報が登録されていません"));
+        if (this.passwordEncoder.matches(userLoginParam.getPasswordRow(), userCredential.getPasswordHash())) {
             return registeredUser;
-        } else{
+        } else {
             throw new AuthenticationException("認証エラー");
+        }
+    }
+
+    @Transactional
+    public void updatePassword(UpdatePasswordParamRaw updatePasswordParamRaw) {
+        UserCredential currentCredential = this.userCredentialRepository.get(updatePasswordParamRaw.getUserId()).orElseThrow(()-> new AuthenticationException("該当ユーザ―がいません"));
+        if (this.passwordEncoder.matches(updatePasswordParamRaw.getCurrentPassword(), currentCredential.getPasswordHash())) {
+            UpdatePasswordParam updatePasswordParam = new UpdatePasswordParam(updatePasswordParamRaw.getUserId(), updatePasswordParamRaw.getCurrentPassword(), this.passwordEncoder.encode(updatePasswordParamRaw.getNewPassword()));
+            this.userCredentialRepository.update(updatePasswordParam);
+        } else {
+            throw new AuthenticationException("パスワードが不正です");
         }
     }
 }

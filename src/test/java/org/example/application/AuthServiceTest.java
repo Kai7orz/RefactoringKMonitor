@@ -104,6 +104,10 @@ public class AuthServiceTest {
         User loginedUser = authService.loginUser(userLoginParam);
         Assertions.assertEquals(loginedUser.getName(),dummyUser.getName());
         Assertions.assertEquals(loginedUser.getEmail(),dummyUser.getEmail());
+    }
+
+    @Test
+    void updatePassword_success() {
 
     }
 
