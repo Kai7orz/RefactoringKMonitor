@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.example.api.exception.AuthenticationException;
+
 @Service
 public class AuthService {
 
@@ -36,9 +38,21 @@ public class AuthService {
         // repository に user を登録
         User savedUser = this.userRepository.save(user);
 
-        UserCredential userCredential = new UserCredential(user.getId(), this.passwordEncoder.encode(userRegisterParam.getRowPassword()));
+        UserCredential userCredential = new UserCredential(savedUser.getId(), this.passwordEncoder.encode(userRegisterParam.getRowPassword()));
         this.userCredentialRepository.save(userCredential);
 
-        return user;
+        return savedUser;
+    }
+
+    @Transactional
+    public User loginUser(UserLoginParam userLoginParam){
+        // email を基に DBからuser を取得して，その user に紐づいた Credential をとり，そのcredential と userLoginParam を Encode したものを比較する
+        User registeredUser = this.userRepository.findUserByEmail(userLoginParam.getEmail()).orElseThrow(()-> new AuthenticationException("ユーザーが見つかりません"));
+        UserCredential userCredential = this.userCredentialRepository.get(registeredUser.getId()).orElseThrow(()-> new AuthenticationException("認証情報が登録されていません"));
+        if(this.passwordEncoder.matches(userLoginParam.getPasswordRow(),userCredential.getPasswordHash())){
+            return registeredUser;
+        } else{
+            throw new AuthenticationException("認証エラー");
+        }
     }
 }
