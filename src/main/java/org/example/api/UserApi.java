@@ -16,8 +16,8 @@ public class UserApi{
   private UserService userService;
   private AuthService authService;
 
-  @PostMapping("/register")
-  public ResponseEntity<User> registerResponse(@RequestBody UserRegisterParam userRegisterParam){
+  @PostMapping("/auth/register")
+  public ResponseEntity<UserWithToken> registerResponse(@RequestBody UserRegisterParam userRegisterParam){
     // registerResponse 内で入力形式チェックして，不正なら FieldErrorResource を throw する
     // userRegisterParam から適宜パラメータを受信
     // AuthService の registerUser を呼び出す

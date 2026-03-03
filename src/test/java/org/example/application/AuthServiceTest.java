@@ -1,6 +1,5 @@
 package org.example.application;
 
-import org.apache.ibatis.annotations.Update;
 import org.example.api.exception.AlreadyRegisterException;
 import org.example.core.user.User;
 import org.example.core.user.UserRepository;
