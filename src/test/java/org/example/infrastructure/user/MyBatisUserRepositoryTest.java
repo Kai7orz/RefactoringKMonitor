@@ -34,7 +34,7 @@ public class MyBatisUserRepositoryTest {
     }
 
     @Test
-    void failed_to_get_not_registerd_user() {
+    void failed_to_get_not_registered_user() {
         User user = new User("testName","test@example.com");
         Assertions.assertThrows(NoSuchElementException.class,()->{
             this.userRepository.findUserByEmail(user.getEmail()).get();
