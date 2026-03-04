@@ -73,7 +73,7 @@ classDiagram
     UserCredentialRepository: +Optional<UserCredential> get(Integer userId)
     UserCredentialRepository: +void save(UserCredential userCredential)
     UserCredentialRepository: +void update(Integer userId, String newPasswordHash)
-    UserCredentialRepository: +void delete(Integer userId);
+    UserCredentialRepository: +void delete(Integer userId)
 
     UserCredentialRepositoryInterface
     UserCredentialRepositoryInterface: +Optional<UserCredential> get(Integer userId)
