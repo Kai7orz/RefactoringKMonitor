@@ -1,6 +1,7 @@
 package org.example.application;
 
 import org.example.api.exception.AlreadyRegisterException;
+import org.example.core.RoleRepository;
 import org.example.core.user.User;
 import org.example.core.user.UserRepository;
 import org.example.core.userCredential.UserCredential;
@@ -17,11 +18,13 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
     private UserRepository userRepository;
     private UserCredentialRepository userCredentialRepository;
+    private RoleRepository roleRepository;
 
-    public AuthService(PasswordEncoder passwordEncoder, UserRepository userRepository, UserCredentialRepository userCredentialRepository) {
+    public AuthService(PasswordEncoder passwordEncoder, UserRepository userRepository, UserCredentialRepository userCredentialRepository, RoleRepository roleRepository) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.userCredentialRepository = userCredentialRepository;
+        this.roleRepository = roleRepository;
     }
 
     @Transactional
@@ -33,7 +36,8 @@ public class AuthService {
             throw new AlreadyRegisterException("このメールアドレスは既に登録されています");
         }
 
-        User user = new User(userRegisterParam.getName(), userRegisterParam.getEmail());
+        Integer userRoleId = this.roleRepository.findRoleByName("USER").getId();
+        User user = new User(userRoleId,userRegisterParam.getName(), userRegisterParam.getEmail());
         // アプリ側で重複ユーザーがいないか事前にチェックする
         // repository に user を登録
         User savedUser = this.userRepository.save(user);

@@ -1,6 +1,7 @@
 package org.example.infrastructure.repository;
 
 import org.example.api.exception.AlreadyRegisterException;
+import org.example.application.Role;
 import org.example.core.user.User;
 import org.example.infrastructure.mybatis.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,10 @@ public class UserRepository implements org.example.core.user.UserRepository
 
     public Optional<User> findUserByEmail(String email){
         return Optional.ofNullable(this.userMapper.findUserByEmail(email));
+    }
+
+    public Role findRoleById(Integer userId){
+        return this.userMapper.findRoleById(userId);
     }
 
     public void delete(Integer userId) {
