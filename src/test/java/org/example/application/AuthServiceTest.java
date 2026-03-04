@@ -1,6 +1,7 @@
 package org.example.application;
 
 import org.example.api.exception.AlreadyRegisterException;
+import org.example.core.RoleRepository;
 import org.example.core.user.User;
 import org.example.core.user.UserRepository;
 import org.example.core.userCredential.UserCredential;
@@ -36,6 +37,9 @@ public class AuthServiceTest {
     private UserCredentialRepository userCredentialRepository;
 
     @Mock
+    private RoleRepository roleRepository;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
@@ -45,6 +49,7 @@ public class AuthServiceTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
+        when(this.roleRepository.findRoleByName(any())).thenReturn(new Role(2,"USER"));
     }
 
     @Test
@@ -54,18 +59,19 @@ public class AuthServiceTest {
         // ③ 実行された変数をキャプチャして検証
         String encodedPassword = "%hashedPassword";
         // 以下①
-        User dummyUser = new User("testName","test@example.com");
-        when(userRepository.save(any())).thenReturn(dummyUser);
+        Integer userRoleId = this.roleRepository.findRoleByName("USER").getId();
+        User user = new User(userRoleId,"testName","test@example.com");
+        when(userRepository.save(any())).thenReturn(user);
 
         // PasswordEncoder は値を受け取ったら特定のハッシュパスワードを返す設定
         when(passwordEncoder.encode(any())).thenReturn(encodedPassword);
 
         // userRegisterParam のダミーを作成
-        UserRegisterParam dummyUserRegisterParam = new UserRegisterParam(dummyUser.getName(),dummyUser.getEmail(),"rawPassword");
+        UserRegisterParam userRegisterParam = new UserRegisterParam(user.getName(),user.getEmail(),"rawPassword");
 
         // 以下②
         // authService の registerUser を呼び出す
-        authService.registerUser(dummyUserRegisterParam);
+        authService.registerUser(userRegisterParam);
 
         // 以下③
         // 適切な引数が渡されたか検証する [ArgumentCaptor を利用する]
@@ -79,12 +85,13 @@ public class AuthServiceTest {
 
     @Test
     void registerNotUniqueUser_fail() {
-        User dummyUser = new User("testName","test@example.com");
-        when(userRepository.existsByEmail(dummyUser.getEmail())).thenReturn(true);
+        Integer userRoleId = this.roleRepository.findRoleByName("USER").getId();
+        User user = new User(userRoleId,"testName","test@example.com");
+        when(userRepository.existsByEmail(user.getEmail())).thenReturn(true);
 
-        UserRegisterParam dummyUserRegisterParam = new UserRegisterParam(dummyUser.getName(),dummyUser.getEmail(),"rawPassword");
+        UserRegisterParam userRegisterParam = new UserRegisterParam(user.getName(),user.getEmail(),"rawPassword");
         assertThrows(AlreadyRegisterException.class, () -> {
-            authService.registerUser(dummyUserRegisterParam);
+            authService.registerUser(userRegisterParam);
         });
         verify(userRepository, never()).save(any());
         verify(userCredentialRepository, never()).save(any());
@@ -92,19 +99,20 @@ public class AuthServiceTest {
 
     @Test
     void loginUser_success() {
-        User dummyUser = new User("testName","test@example.com");
-        UserCredential dummyUserCredential = new UserCredential(1,"passwordHash");
-        UserLoginParam userLoginParam = new UserLoginParam(dummyUser.getEmail(),"passwordHash");
-        Optional<User> optDummyUser = Optional.of(dummyUser);
-        Optional<UserCredential> optUserCredential = Optional.of(dummyUserCredential);
+        Integer userRoleId = this.roleRepository.findRoleByName("USER").getId();
+        User user = new User(userRoleId,"testName","test@example.com");
+        UserCredential userCredential = new UserCredential(1,"passwordHash");
+        UserLoginParam userLoginParam = new UserLoginParam(user.getEmail(),"passwordHash");
+        Optional<User> optDummyUser = Optional.of(user);
+        Optional<UserCredential> optUserCredential = Optional.of(userCredential);
 
         when(userRepository.findUserByEmail(any())).thenReturn(optDummyUser);
         when(userCredentialRepository.get(any())).thenReturn(optUserCredential);
         when(passwordEncoder.matches(any(),any())).thenReturn(true);
 
         User loginedUser = authService.loginUser(userLoginParam);
-        Assertions.assertEquals(loginedUser.getName(),dummyUser.getName());
-        Assertions.assertEquals(loginedUser.getEmail(),dummyUser.getEmail());
+        Assertions.assertEquals(loginedUser.getName(),user.getName());
+        Assertions.assertEquals(loginedUser.getEmail(),user.getEmail());
     }
 
     @Test
@@ -127,8 +135,8 @@ public class AuthServiceTest {
     @Test
     void deleteUser_success() {
         DeleteParam deleteParam = new DeleteParam(1,"currentPassword");
-        UserCredential dummyUserCredential = new UserCredential(1,"passwordHash");
-        Optional<UserCredential> optionalUserCredential = Optional.of(dummyUserCredential);
+        UserCredential userCredential = new UserCredential(1,"passwordHash");
+        Optional<UserCredential> optionalUserCredential = Optional.of(userCredential);
         when(this.userCredentialRepository.get(any())).thenReturn(optionalUserCredential);
         when(this.passwordEncoder.matches(any(),any())).thenReturn(true);
         doNothing().when(this.userCredentialRepository).delete(any());
@@ -157,19 +165,21 @@ public class AuthServiceTest {
 
     @Test
     void loginUser_userNotFound_fail() {
-        User dummyUser = new User("testName","test@example.com");
-        Exception e = Assertions.assertThrows(AuthenticationException.class,()->{authService.loginUser(new UserLoginParam(dummyUser.getEmail(),"passwordHash"));});
+        Integer userRoleId = this.roleRepository.findRoleByName("USER").getId();
+        User user = new User(userRoleId,"testName","test@example.com");
+        Exception e = Assertions.assertThrows(AuthenticationException.class,()->{authService.loginUser(new UserLoginParam(user.getEmail(),"passwordHash"));});
         Assertions.assertEquals("ユーザーが見つかりません",e.getMessage());
     }
 
     @Test
     void loginUser_credentialNotFound_fail() {
-        User dummyUser = new User("testName","test@example.com");
-        Optional<User> optDummyUser = Optional.of(dummyUser);
+        Integer userRoleId = this.roleRepository.findRoleByName("USER").getId();
+        User user = new User(userRoleId,"testName","test@example.com");
+        Optional<User> optDummyUser = Optional.of(user);
         when(userRepository.findUserByEmail(any())).thenReturn(optDummyUser);
 
         Exception e = Assertions.assertThrows(AuthenticationException.class,()->{
-            authService.loginUser(new UserLoginParam(dummyUser.getEmail(),"passwordHash"));
+            authService.loginUser(new UserLoginParam(user.getEmail(),"passwordHash"));
         });
 
         Assertions.assertEquals("認証情報が登録されていません",e.getMessage());
@@ -177,8 +187,8 @@ public class AuthServiceTest {
 
     @Test
     void updatePassword_userNotFound_fail() {
-        UserCredential dummyUserCredential = new UserCredential(1,"passwordHash");
-        Optional<UserCredential> optUserCredential = Optional.of(dummyUserCredential);
+        UserCredential userCredential = new UserCredential(1,"passwordHash");
+        Optional<UserCredential> optUserCredential = Optional.of(userCredential);
         UpdatePasswordParamRaw dummyUpdatePasswordParamParamRaw = new UpdatePasswordParamRaw(1,"currentPassword","newPasswordRaw");
 
         UserCredential dummyCredential = new UserCredential(1,"passwordHash");
@@ -190,11 +200,12 @@ public class AuthServiceTest {
 
     @Test
     void loginUser_passwordWrong_fail() {
-        User dummyUser = new User("testName","test@example.com");
-        UserCredential dummyUserCredential = new UserCredential(1,"passwordHash");
-        UserLoginParam userLoginParam = new UserLoginParam(dummyUser.getEmail(),"wrongPasswordHash");
-        Optional<User> optDummyUser = Optional.of(dummyUser);
-        Optional<UserCredential> optUserCredential = Optional.of(dummyUserCredential);
+        Integer userRoleId = this.roleRepository.findRoleByName("USER").getId();
+        User user = new User(userRoleId,"testName","test@example.com");
+        UserCredential userCredential = new UserCredential(1,"passwordHash");
+        UserLoginParam userLoginParam = new UserLoginParam(user.getEmail(),"wrongPasswordHash");
+        Optional<User> optDummyUser = Optional.of(user);
+        Optional<UserCredential> optUserCredential = Optional.of(userCredential);
 
         when(userRepository.findUserByEmail(any())).thenReturn(optDummyUser);
         when(userCredentialRepository.get(any())).thenReturn(optUserCredential);
@@ -210,8 +221,8 @@ public class AuthServiceTest {
 
     @Test
     void deleteUser_userNotFound_fail() {
-        UserCredential dummyUserCredential = new UserCredential(1,"passwordHash");
-        Optional<UserCredential> optUserCredential = Optional.of(dummyUserCredential);
+        UserCredential userCredential = new UserCredential(1,"passwordHash");
+        Optional<UserCredential> optUserCredential = Optional.of(userCredential);
         DeleteParam deleteParam = new DeleteParam(1,"currentPassword");
 
         Exception e = Assertions.assertThrows(AuthenticationException.class,()->{
@@ -222,11 +233,12 @@ public class AuthServiceTest {
 
     @Test
     void deleteUser_passwordWrong_fail() {
-        User dummyUser = new User("testName","test@example.com");
-        UserCredential dummyUserCredential = new UserCredential(1,"passwordHash");
+        Integer userRoleId = this.roleRepository.findRoleByName("USER").getId();
+        User user = new User(userRoleId,"testName","test@example.com");
+        UserCredential userCredential = new UserCredential(1,"passwordHash");
         DeleteParam deleteParam = new DeleteParam(1,"wrongPasswordHash");
-        Optional<User> optDummyUser = Optional.of(dummyUser);
-        Optional<UserCredential> optUserCredential = Optional.of(dummyUserCredential);
+        Optional<User> optDummyUser = Optional.of(user);
+        Optional<UserCredential> optUserCredential = Optional.of(userCredential);
 
         when(userRepository.findUserByEmail(any())).thenReturn(optDummyUser);
         when(userCredentialRepository.get(any())).thenReturn(optUserCredential);

@@ -20,7 +20,7 @@ public class JwtDefaultTest {
 
     @Test
     void get_jwt_success() {
-        User user = new User("testName","test@example.com");
+        User user = new User(1,"testName","test@example.com");
         String testRole = "testRole";
         // defaultJWT のservice を用いて, user,roleName を引数に token 返してもらう
         String receivedToken = this.jwtService.toToken(user,testRole);
@@ -30,7 +30,7 @@ public class JwtDefaultTest {
 
     @Test
     void validate_token_success() {
-        User user = new User("testName","test@example.com");
+        User user = new User(1,"testName","test@example.com");
         String testRole = "testRole";
         String receivedToken = this.jwtService.toToken(user,testRole);
         Assertions.assertTrue(this.jwtService.validateToken(receivedToken));
@@ -38,7 +38,7 @@ public class JwtDefaultTest {
 
     @Test
     void validate_wrong_token_fail() {
-        User user = new User("testName","test@example.com");
+        User user = new User(1,"testName","test@example.com");
         String testRole = "testRole";
         String receivedToken = this.jwtService.toToken(user,testRole);
         Assertions.assertTrue(this.jwtService.validateToken(receivedToken));
