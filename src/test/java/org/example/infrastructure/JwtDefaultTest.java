@@ -31,14 +31,24 @@ public class JwtDefaultTest {
     @Test
     void validate_token_success() {
         User user = new User(1,"testName","test@example.com");
+<<<<<<< HEAD
         String receivedToken = this.jwtService.toToken(user);
+=======
+        String testRole = "testRole";
+        String receivedToken = this.jwtService.toToken(user,testRole);
+>>>>>>> origin/main
         Assertions.assertTrue(this.jwtService.validateToken(receivedToken));
     }
 
     @Test
     void validate_wrong_token_fail() {
         User user = new User(1,"testName","test@example.com");
+<<<<<<< HEAD
         String receivedToken = this.jwtService.toToken(user);
+=======
+        String testRole = "testRole";
+        String receivedToken = this.jwtService.toToken(user,testRole);
+>>>>>>> origin/main
         Assertions.assertTrue(this.jwtService.validateToken(receivedToken));
         String invalidToken = "invalid_token";
         Exception e = Assertions.assertThrows(AuthenticationException.class,()->{

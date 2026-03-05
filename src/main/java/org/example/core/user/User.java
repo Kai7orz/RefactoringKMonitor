@@ -9,28 +9,28 @@ import java.time.LocalDateTime;
 @Setter
 public class User {
     private Integer id;
-    private Integer role_id;
+    private Integer roleId;
     private String name;
     private String email;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
 
-    public User(String name, String email) {
+    public User(Integer roleId,String name, String email) {
         this.id = null;
-        this.role_id = null;
+        this.roleId = roleId;
         this.name = name;
         this.email = email;
         this.created_at = LocalDateTime.now();
         this.updated_at = LocalDateTime.now();
     }
 
-    public void updateUserInfo(String name, String email, Integer role_id) {
+    public void updateUserInfo(String name, String email, Integer roleId) {
         this.name = name;
         this.email = email;
-        this.role_id = role_id;
+        this.roleId = roleId;
     }
 
-    public void changePassword(String passwordHash){
-
+    public String getRole(){
+        return "test";
     }
 }
