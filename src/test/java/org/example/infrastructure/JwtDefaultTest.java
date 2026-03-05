@@ -15,32 +15,30 @@ public class JwtDefaultTest {
 
     @BeforeEach
     void setUp(){
-        this.jwtService  = new JwtDefault(3600);
+        this.jwtService  = new JwtDefault("123123123123123123123123123123123123123123123123123123123123",3600);
     }
 
     @Test
     void get_jwt_success() {
-        User user = new User(1,"testName","test@example.com");
-        String testRole = "testRole";
+        Integer ROLE_ID = 2;
+        User user = new User(ROLE_ID,"testName","test@example.com");
         // defaultJWT のservice を用いて, user,roleName を引数に token 返してもらう
-        String receivedToken = this.jwtService.toToken(user,testRole);
+        String receivedToken = this.jwtService.toToken(user);
         Assertions.assertNotNull(receivedToken);
-        Assertions.assertEquals("testRole",this.jwtService.extractUserRole(receivedToken));
+        Assertions.assertEquals(ROLE_ID,this.jwtService.extractUserRoleId(receivedToken));
     }
 
     @Test
     void validate_token_success() {
         User user = new User(1,"testName","test@example.com");
-        String testRole = "testRole";
-        String receivedToken = this.jwtService.toToken(user,testRole);
+        String receivedToken = this.jwtService.toToken(user);
         Assertions.assertTrue(this.jwtService.validateToken(receivedToken));
     }
 
     @Test
     void validate_wrong_token_fail() {
         User user = new User(1,"testName","test@example.com");
-        String testRole = "testRole";
-        String receivedToken = this.jwtService.toToken(user,testRole);
+        String receivedToken = this.jwtService.toToken(user);
         Assertions.assertTrue(this.jwtService.validateToken(receivedToken));
         String invalidToken = "invalid_token";
         Exception e = Assertions.assertThrows(AuthenticationException.class,()->{
