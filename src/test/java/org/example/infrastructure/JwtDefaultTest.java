@@ -20,13 +20,8 @@ public class JwtDefaultTest {
 
     @Test
     void get_jwt_success() {
-<<<<<<< Updated upstream
-        User user = new User("testName","test@example.com");
-        String testRole = "testRole";
-=======
         Integer ROLE_ID = 2;
         User user = new User(ROLE_ID,"testName","test@example.com");
->>>>>>> Stashed changes
         // defaultJWT のservice を用いて, user,roleName を引数に token 返してもらう
         String receivedToken = this.jwtService.toToken(user);
         Assertions.assertNotNull(receivedToken);
@@ -35,27 +30,15 @@ public class JwtDefaultTest {
 
     @Test
     void validate_token_success() {
-<<<<<<< Updated upstream
-        User user = new User("testName","test@example.com");
-        String testRole = "testRole";
-        String receivedToken = this.jwtService.toToken(user,testRole);
-=======
         User user = new User(1,"testName","test@example.com");
         String receivedToken = this.jwtService.toToken(user);
->>>>>>> Stashed changes
         Assertions.assertTrue(this.jwtService.validateToken(receivedToken));
     }
 
     @Test
     void validate_wrong_token_fail() {
-<<<<<<< Updated upstream
-        User user = new User("testName","test@example.com");
-        String testRole = "testRole";
-        String receivedToken = this.jwtService.toToken(user,testRole);
-=======
         User user = new User(1,"testName","test@example.com");
         String receivedToken = this.jwtService.toToken(user);
->>>>>>> Stashed changes
         Assertions.assertTrue(this.jwtService.validateToken(receivedToken));
         String invalidToken = "invalid_token";
         Exception e = Assertions.assertThrows(AuthenticationException.class,()->{
