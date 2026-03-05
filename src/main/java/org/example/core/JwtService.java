@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface JwtService {
-    String toToken(User user, String roleName);
+    String toToken(User user);
     boolean validateToken(String token);
-    String extractUserRole(String token);
+    Integer extractUserRoleId(String token);
 }
