@@ -6,11 +6,11 @@ import lombok.Getter;
 public class UserRegisterParam {
     private String name;
     private String email;
-    private String rowPassword;
+    private String passwordRow;
 
-    public UserRegisterParam(String name,String email,String rowPassword){
+    public UserRegisterParam(String name,String email,String passwordRow){
         this.name = name;
         this.email = email;
-        this.rowPassword = rowPassword;
+        this.passwordRow = passwordRow;
     }
 }

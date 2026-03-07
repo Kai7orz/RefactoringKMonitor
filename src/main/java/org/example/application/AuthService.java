@@ -42,7 +42,7 @@ public class AuthService {
         // repository に user を登録
         User savedUser = this.userRepository.save(user);
 
-        UserCredential userCredential = new UserCredential(savedUser.getId(), this.passwordEncoder.encode(userRegisterParam.getRowPassword()));
+        UserCredential userCredential = new UserCredential(savedUser.getId(), this.passwordEncoder.encode(userRegisterParam.getPasswordRow()));
         this.userCredentialRepository.save(userCredential);
 
         return savedUser;

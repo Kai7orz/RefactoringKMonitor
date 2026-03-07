@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Repository
@@ -28,7 +29,8 @@ public class UserRepository implements org.example.core.user.UserRepository
     public User save(User user){
         if(this.existsByEmail(user.getEmail())) throw new AlreadyRegisterException("すでに登録されているユーザーです");
         this.userMapper.insert(user);
-        return user;
+        User savedUser = this.findUserByEmail(user.getEmail()).orElseThrow();
+        return savedUser;
     }
 
     public Optional<User> findUserByEmail(String email){

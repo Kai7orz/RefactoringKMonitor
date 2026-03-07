@@ -645,14 +645,14 @@ components:
       type: object
       required:
         - email
-        - rowPassword
+        - passwordRow
         - name
       properties:
         email:
           type: string
           format: email
           example: user@example.com
-        rowPassword:
+        passwordRow:
           type: string
           format: password
           minLength: 8
@@ -667,13 +667,13 @@ components:
       type: object
       required:
         - email
-        - rowPassword
+        - passwordRow
       properties:
         email:
           type: string
           format: email
           example: user@example.com
-        rowPassword:
+        passwordRow:
           type: string
           format: password
           example: password123
