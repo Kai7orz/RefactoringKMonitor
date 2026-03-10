@@ -23,19 +23,16 @@ public class UserApi {
     private final JwtService jwtService;
 
     @Autowired
-    public UserApi(UserService userService, AuthService authService, JwtService jwtService) {
+    public UserApi(AuthService authService, JwtService jwtService) {
         this.authService = authService;
         this.jwtService = jwtService;
     }
 
     @PostMapping(value = "/auth/register", produces = "application/json")
     public ResponseEntity<UserWithToken> registerResponse(@Valid @RequestBody UserRegisterParam userRegisterParam) {
-        UserRegisterParam authUserRegisterParam = new UserRegisterParam(userRegisterParam.getName(),userRegisterParam.getEmail(),userRegisterParam.getPasswordRow());
-        User user = this.authService.registerUser(authUserRegisterParam);
-
+        User user = this.authService.registerUser(userRegisterParam);
         String token = this.jwtService.toToken(user);
         UserWithToken userWithToken = new UserWithToken(user, token);
-        // xss 警告を IDE 上で消すために, JSON でデータ返すことを明示している.
         return ResponseEntity.status(201).contentType(MediaType.APPLICATION_JSON).body(userWithToken);
     }
 
