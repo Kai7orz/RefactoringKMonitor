@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public class UserLoginParam {
-    private String email;
-    private String passwordRow;
+    private final String email;
+    private final String passwordRow;
 
     public UserLoginParam(String email, String passwordRow){
         this.email = email;
