@@ -1,5 +1,6 @@
 package org.example.application;
 
+import jakarta.validation.Valid;
 import org.example.api.exception.AlreadyRegisterException;
 import org.example.core.RoleRepository;
 import org.example.core.user.User;
@@ -15,10 +16,10 @@ import org.example.api.exception.AuthenticationException;
 @Service
 public class AuthService {
 
-    private PasswordEncoder passwordEncoder;
-    private UserRepository userRepository;
-    private UserCredentialRepository userCredentialRepository;
-    private RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final UserCredentialRepository userCredentialRepository;
+    private final RoleRepository roleRepository;
 
     public AuthService(PasswordEncoder passwordEncoder, UserRepository userRepository, UserCredentialRepository userCredentialRepository, RoleRepository roleRepository) {
         this.passwordEncoder = passwordEncoder;
@@ -28,7 +29,7 @@ public class AuthService {
     }
 
     @Transactional
-    public User registerUser(UserRegisterParam userRegisterParam) {
+    public User registerUser(@Valid UserRegisterParam userRegisterParam) {
         // transaction で 一括で処理すること
         // 重複ユーザーへはエラーを返すこと
         // Email に Unique 制約を設けて, DB でエラーを返してもらう設計？

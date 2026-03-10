@@ -1,5 +1,7 @@
 package org.example.api;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.example.application.AuthService;
 import org.example.application.UserRegisterParam;
 import org.example.application.UserService;
@@ -8,16 +10,17 @@ import org.example.application.*;
 import org.example.core.JwtService;
 import org.example.core.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class UserApi {
-    private AuthService authService;
-    private JwtService jwtService;
-    private UserService userService;
+    private final AuthService authService;
+    private final JwtService jwtService;
 
     @Autowired
     public UserApi(UserService userService, AuthService authService, JwtService jwtService) {
@@ -25,13 +28,15 @@ public class UserApi {
         this.jwtService = jwtService;
     }
 
-    @PostMapping("/auth/register")
-    public ResponseEntity<UserWithToken> registerResponse(@RequestBody UserRegisterParam userRegisterParam) {
-        User user = this.authService.registerUser(userRegisterParam);
+    @PostMapping(value = "/auth/register", produces = "application/json")
+    public ResponseEntity<UserWithToken> registerResponse(@Valid @RequestBody UserRegisterParam userRegisterParam) {
+        UserRegisterParam authUserRegisterParam = new UserRegisterParam(userRegisterParam.getName(),userRegisterParam.getEmail(),userRegisterParam.getPasswordRow());
+        User user = this.authService.registerUser(authUserRegisterParam);
+
         String token = this.jwtService.toToken(user);
         UserWithToken userWithToken = new UserWithToken(user, token);
-        return ResponseEntity.status(201)
-                .body(userWithToken);
+        // xss 警告を IDE 上で消すために, JSON でデータ返すことを明示している.
+        return ResponseEntity.status(201).contentType(MediaType.APPLICATION_JSON).body(userWithToken);
     }
 
     @PostMapping("/auth/login")

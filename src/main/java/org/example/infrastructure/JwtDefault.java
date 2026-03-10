@@ -20,8 +20,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 @Component
 public class JwtDefault implements JwtService {
-    @Autowired
-    private RoleRepository roleRepository;
 
     private final SecretKey signinKey;
     private final SignatureAlgorithm signatureAlgorithm;
