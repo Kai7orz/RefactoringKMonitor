@@ -12,6 +12,7 @@ erDiagram
     categories ||--o{ record_categories : "1:N (CASCADE)"
     records　||--o{ record_categories :"1:N (CASCADE)"
     users ||--|| user_credential : "1:1 (CASCADE)"
+    records ||--o{ illustrations : "1:N (CASCADE)"
     
     users {
         Integer id PK
@@ -20,6 +21,14 @@ erDiagram
         Integer role_id FK
         LocalDateTime created_at
         LocalDateTime updated_at
+    }
+    
+    illustrations {
+        Integer id PK 
+        Integer record_id FK
+        String key "NOT NULL, UNIQUE"
+        LocalDateTime created_at
+        LocalDdateTime updated_at
     }
     
     user_credential {
