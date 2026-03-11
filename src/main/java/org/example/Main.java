@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.infrastructure.GptImage;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
@@ -8,5 +9,7 @@ import org.springframework.context.annotation.ComponentScan;
 public class Main {
     public static void main(String[] args) {
         SpringApplication.run(Main.class,args);
+        GptImage gptImage = new GptImage("https://s3.ap-northeast-1.amazonaws.com/www.kai7orz.com/katazuke.png?response-content-disposition=inline&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEI3%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaDmFwLW5vcnRoZWFzdC0xIkcwRQIhAIQqzcSb4pmvauWDfFu1isn3gV4JvYajv1QguJ3A0z6TAiBCdw3mCvOHMAUcgNd2vM15Gzv5UALO87zJQnyCZ99QDSrWAwhWEAAaDDY5Mjg1OTk0ODg4NyIMXbwfda4r5F1AutY%2BKrMDc2F1AwXEM4s4Olk6cZMA0iJzIiUHU6tt8bRJEcyPIZjL8uYJZxSA7ZEjzdo52nYMPOn%2FNPkP537DVf2FOopDg7wlg7C3wD5n0jdlHd4dWbJTbFIKaRJSCakObqnXgmsF6gIvIfLBQHhDeq5tuV4b%2FZOMxtsX11OEY3WISXvpwr0YY6n0T%2Fh4ASmV2njCtplKOXPCiFyEpMEag5yyu%2FdSLMDEDHDEl2RJswwDI%2Bme9Iz9UAH2JjfVky8BjRXPinh%2FmTXsu7c8OK4wxHZybW33edjGdPdzmmQalPvVMZzItMPgWEPiFZjOpM7giQCQ3ciHxNQ11174bxYwk0yso%2FEZ1iOGhTnVyC66cVDJytpnDNtW%2BhzkGdNAzmBwbsCfTKseCeEu0ncW1sCtnk65jC1TVwq6hojov3T1ZLr%2FllLpS%2BxE6ETGDEH4SdXDtVSoADP%2FKQ7Jzcxn0EAEyATS5VLL5v9bFP2sqw9gv%2FAeNBtKJf5BVX8L6CeJixwY89kG6XlJsVqKO2qjToGoRl91gOIe2mfClCCGIfbq3GIyBeVdH8KZpXdK%2BbFrVIOpsFQHqpD%2Fo%2B2LMJbvw80GOt4CUbgCogTISd%2BR4kV9HpCk%2BlM8UjiM6bvLnAU1K%2FyClr7%2FkQkjmvjo5Bj2AoKvHZ8uJQ8vDyQ68l1O3rAAtgWSZxvEyE6huPR0EzGiFifkTMhWhaLxejbZd4E7ng6FvZxUc%2FrWHYeLNhHdrfUuzUJQm9xoYUfMchlM%2BB5HTGSiOXvmLZ%2FYkuPrrxEka0huoi6doIpEzPHeHnExq1U1EXz4JBzjZo5jYXQibGSkL6Jo%2BAtSVvsSIe%2BLd7I7PUYgsPyciR3xp3gdHgfCNNpB28MEwfwLzcOq%2BBAEVaksuY%2FjY8otwAhbtCgKhkfCaxxBsic7ytc71G9SL90%2BznSJy1Qi%2FL5QUO5%2BKdflJAg4ZiiXa1yHj9dFOImexsj1j0ZQW3cNOlnXIf5DwBbuKUOqGp%2Boi1FeKVt9o%2B6I5U0XB8D6wpZwNife%2F3qD5ycy8UXOfhiiF4p%2F10nOQmKyU7WhR7A%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIA2CUNLZ5LQPK6SAOQ%2F20260311%2Fap-northeast-1%2Fs3%2Faws4_request&X-Amz-Date=20260311T050834Z&X-Amz-Expires=10800&X-Amz-SignedHeaders=host&X-Amz-Signature=255e330341ab287925a4728beaa6a6e213e447af1bb960c4df538b5b48c74dbb");
+
     }
 }

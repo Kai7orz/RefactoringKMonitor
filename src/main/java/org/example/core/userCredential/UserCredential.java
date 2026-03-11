@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public class UserCredential {
-    private Integer userId;
-    private String passwordHash;
+    private final Integer userId;
+    private final String passwordHash;
 
     public UserCredential(Integer userId,String passwordHash){
         this.userId = userId;
