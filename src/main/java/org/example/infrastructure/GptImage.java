@@ -4,45 +4,58 @@ import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.models.images.*;
 import org.springframework.beans.factory.annotation.Value;
+import software.amazon.awssdk.transfer.s3.S3TransferManager;
+import software.amazon.awssdk.transfer.s3.model.CompletedFileDownload;
+import software.amazon.awssdk.transfer.s3.model.DownloadFileRequest;
+import software.amazon.awssdk.transfer.s3.model.FileDownload;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 public class GptImage {
-    public GptImage(String presignedUrl){
+    public GptImage(S3TransferManager transferManager){
         OpenAIClient openAIClient  = OpenAIOkHttpClient.fromEnv();
         // シークレットアクセスキー .env に登録
         // ユーザーID などの認証情報
         // S3 のリージョン名
         // AWS SDK 導入
         // presignedURL から画像をとって一旦 DL しないといけないっぽい
+        DownloadFileRequest donwloadFileRequest = DownloadFileRequest.builder()
+                .getObjectRequest(b->b.bucket("www.kai7orz.com").key("katazuke.png"))
+                .destination(Paths.get("./illustration.png"))
+                .build();
+
+        FileDownload downloadFile = transferManager.downloadFile(donwloadFileRequest);
+        CompletedFileDownload downloadResult = downloadFile.completionFuture().join();
+
         // square 変換処理
         // DL したファイルをバイナリデータとして GPT API に投げる処理
-        // 返ってきたイメージを S3 にアップロードする処理 user と イラストを紐づける処理がここで必要かも
-
-        ImageEditParams params = ImageEditParams.builder().image()
-        ImagesResponse imagesResponse = openAIClient.images().createVariation(params);
-
-        List<Image> image = imagesResponse.data().orElseThrow();
-        String encodedData = image.getFirst().b64Json().orElseThrow();
-        System.out.println("imagesResponse encoded: "+encodedData);
-        String regex = "data:image/png;base64";
-        Pattern p = Pattern.compile(regex);
-        Matcher m = p.matcher(encodedData);
-        byte[] bytes = Base64.getDecoder().decode(encodedData);
-        try{
-            FileOutputStream stream = new FileOutputStream("./decodedImage.png");
-            stream.write(bytes);
-        } catch(FileNotFoundException e){
-            e.printStackTrace();
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
+//        // 返ってきたイメージを S3 にアップロードする処理 user と イラストを紐づける処理がここで必要かも
+//
+//        ImageEditParams params = ImageEditParams.builder().image();
+//        ImagesResponse imagesResponse = openAIClient.images().edit(params);
+//        List<Image> image = imagesResponse.data().orElseThrow();
+//        String encodedData = image.getFirst().b64Json().orElseThrow();
+//        System.out.println("imagesResponse encoded: "+encodedData);
+//        String regex = "data:image/png;base64";
+//        Pattern p = Pattern.compile(regex);
+//        Matcher m = p.matcher(encodedData);
+//        byte[] bytes = Base64.getDecoder().decode(encodedData);
+//        try{
+//            FileOutputStream stream = new FileOutputStream("./decodedImage.png");
+//            stream.write(bytes);
+//        } catch(FileNotFoundException e){
+//            e.printStackTrace();
+//        } catch(IOException e) {
+//            e.printStackTrace();
+//        }
     }
 }
